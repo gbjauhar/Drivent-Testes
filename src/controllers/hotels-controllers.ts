@@ -9,6 +9,9 @@ export async function getHotels(req: AuthenticatedRequest, res: Response) {
     const hotels = await hotelService.listAllHotels(+userId);
     return res.status(httpStatus.OK).send(hotels[0]);
   } catch (err) {
+    if(err.name === "NotFoundError") {
+      return res.sendStatus(httpStatus.NOT_FOUND);
+    }
     if (err.name === "UnauthorizedError") {
       return res.sendStatus(httpStatus.UNAUTHORIZED);
     }
@@ -21,11 +24,14 @@ export async function getHotels(req: AuthenticatedRequest, res: Response) {
 
 export async function getRooms(req: AuthenticatedRequest, res: Response) {
   const { userId } = req;
-  const { hotelId } = req.query;
+  const { hotelId } = req.params;
   try {
-    const rooms = await hotelService.listAllRooms(userId, Number(hotelId));
+    const rooms = await hotelService.listAllRooms(userId, parseInt(hotelId));
     return res.status(httpStatus.OK).send(rooms);
   } catch (err) {
+    if(err.name === "NotFoundError") {
+      return res.sendStatus(httpStatus.NOT_FOUND);
+    }
     if (err.name === "UnauthorizedError") {
       return res.sendStatus(httpStatus.UNAUTHORIZED);
     }

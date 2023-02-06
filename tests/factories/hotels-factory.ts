@@ -1,25 +1,22 @@
-import  dayjs  from "dayjs";
 import { faker } from "@faker-js/faker";
 import { prisma } from "./../../src/config/database";
-import { Hotel } from "@prisma/client";
+import { Hotel, Room } from "@prisma/client";
 
-export function createHotel(params: Partial<Hotel> = {}): Promise<Hotel> {
+export function createHotel(params: Partial<Hotel> = {}): Promise<Hotel & {Rooms: Room[]}> {
   return prisma.hotel.create({
     data: {
-      name: params.name || faker.lorem.word(),
+      id: 1,
+      name: params.name || faker.name.findName(),
       image: params.image || faker.image.imageUrl(),
-      createdAt: params.createdAt || dayjs().subtract(1, "day").toDate(),
-      updatedAt: params.updatedAt || dayjs().add(5, "days").toDate(),
-      Rooms: [
-        {
-          id: hotel.Rooms[0].id,
-          name: hotel.Rooms[0].name,
-          capacity: hotel.Rooms[0].capacity,
-          hotelId: hotel.Rooms[0].hotelId,
-          createdAt: hotel.Rooms[0].createdAt.toISOString(),
-          updatedAt: hotel.Rooms[0].updatedAt.toISOString(),
-        }]
-    },
+      Rooms: {
+        createMany: {
+          data: [{
+            name: faker.name.findName(),
+            capacity: faker.datatype.number()
+          }],
+        } }
+    }, include: {
+      Rooms: true
+    }
   });
 }
-  
